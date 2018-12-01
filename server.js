@@ -1,23 +1,32 @@
 var socket=require('socket.io');
-var express=require('express');
-var http=require('http');
- logger =require('winston');
+    express=require('express');
+    http=require('http');
 
+const { createLogger, format, transports } = require('winston');
 
+const logger = createLogger({
+    level: 'debug',
+    format: format.combine(format.colorize(), format.simple()),
+    transports: [new transports.Console()]
+});
 
-logger.remove(logger.transports.Console);
-logger.add(logger.transports.Console,{colorize:true,timestamp:true});
+logger.info('Hello world');
+logger.debug('Debugging info');
 
-logger.info('socket is lessin in port ');
 
 var app=express();
-var http_server=http.createServer(app).listen(3001);
+var http_server=http.createServer(app).listen(3000);
 
 function emmitOrder(http_server){
     var io=socket.listen(http_server);
     io.sockets.on('connection',function(socket){
-        console.log('connection');
+        socket.on("new_order",function (data) {
+            io.emit("new_order")
+            console.log(data);
+            
+        })
         
     });
 }
 emmitOrder(http_server);
+
